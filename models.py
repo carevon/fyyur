@@ -68,4 +68,11 @@ class Artist(BaseModel):
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
 class Show(BaseModel):
+    __tablename__ = 'Show'
     id = db.Column(db.Integer, primary_key=True)
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key=True, nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key=True, nullable=False)
+    start_time = db.Column(db.DateTime(timezone=True), nullable=False)
+
+    def __repr__(self) -> str:
+        return '<Show {} {}>'.format(self.artist_id, self.venue_id)
