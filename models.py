@@ -46,10 +46,19 @@ class Venue(BaseModel):
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
+    genres = db.Column(db.ARRAY(db.String(200)), server_default='{}')
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
-                                                                                                                               
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    website = db.Column(db.String(120))
+    seeking_talent = db.Column(db.Boolean, default=True)
+    seeking_description = db.Column(db.String(120), default="We are on the lookout for a local artist to play every two weeks. Please call us.")
+
+    # Venue is the parent (one-to-many) of a Show (Artist is also a foreign key, in def. of Show)
+    # In the parent is where we put the db.relationship in SQLAlchemy
+    shows = db.relationship('Show', backref=db.backref('venue', lazy=True))
+
+    def __repr__(self) -> str:
+        return '<Venue {}>'.format(self.name)
 
 class Artist(BaseModel):
     __tablename__ = 'Artist'
@@ -59,17 +68,20 @@ class Artist(BaseModel):
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
+    genres = db.Column(db.ARRAY(db.String(200)), server_default='{}')
     image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
+    facebook_link = db.Column(db.String(300))
+    seeking_venue = db.Column(db.Boolean, default=True)
+    seeking_description = db.Column(db.String(120), default="Currently seeking performance venues")
+    website = db.Column(db.String(120))
+    shows = db.relationship('Show', backref=db.backref('artist', lazy=True))
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
-
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+    def __repr__(self) -> str:
+        return '<Artist {}>'.format(self.name)
 
 class Show(BaseModel):
     __tablename__ = 'Show'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key=True, nullable=False)
     artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key=True, nullable=False)
     start_time = db.Column(db.DateTime(timezone=True), nullable=False)
