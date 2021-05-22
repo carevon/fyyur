@@ -21,7 +21,7 @@ def upgrade():
     op.create_table('show',
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False, autoincrement=True),
     sa.Column('venue_id', sa.Integer(), nullable=False),
     sa.Column('artist_id', sa.Integer(), nullable=False),
     sa.Column('start_time', sa.DateTime(timezone=True), nullable=False),
