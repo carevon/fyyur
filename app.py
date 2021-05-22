@@ -154,7 +154,6 @@ def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
   error = False
-  print(request.form)
   try:
     name = request.form['name']
     city = request.form['city']
@@ -164,13 +163,15 @@ def create_venue_submission():
     genres = request.form.getlist('genres')
     fb_link = request.form['facebook_link']
     img_link = request.form['image_link']
-    website = request.form['website']
+    website_link = request.form['website_link']
     seeking_talent = True if 'seeking_talent' in request.form else False
     seeking_description = request.form['seeking_description']
 
     venue = Venue(name=name, city=city, state=state, address=address, phone=phone, 
-    genres=genres, facebook_link=fb_link, image_link=img_link, website=website, 
-    seeking_talent=seeking_talent, seeking_description=seeking_description)
+    genres=genres, facebook_link=fb_link, image_link=img_link, website=website_link, 
+    seeking_talent=seeking_talent, seeking_description=seeking_description, 
+    created_at=datetime.now(timezone(timedelta(hours=-3))), 
+    updated_at=datetime.now(timezone(timedelta(hours=-3))))
     db.session.add(venue)
     db.session.commit()
   except:
