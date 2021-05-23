@@ -42,6 +42,7 @@
 		</p>
 		{% endif %}
 	</div>
+
 	<div class="col-sm-6">
 		<img src="{{ venue.image_link }}" alt="Venue Image" />
 	</div>
@@ -74,9 +75,9 @@
 		{% endfor %}
 	</div>
 </section>
-
-<a href="/venues/{{ venue.id }}/edit"><button class="btn btn-primary btn-lg">Edit</button></a>
-<a href="/venues/{{ venue.id }}/remove"><button class="btn btn-danger btn-lg">Remove</button></a>
-
+<div>
+	<a href="/venues/{{ venue.id }}/edit"><button class="btn btn-primary btn-lg">Edit</button></a>
+	<a href="/venues/{{ venue.id }}/remove"><button class="btn btn-danger btn-lg">Remove</button></a>
+</div>
 {% endblock %}
 

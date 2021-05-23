@@ -191,13 +191,28 @@ def create_venue_submission():
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
 
-@app.route('/venues/<venue_id>/remove', methods=['DELETE'])
+@app.route('/venues/<int:venue_id>/remove', methods=['GET'])
 def delete_venue(venue_id):
   # DONE: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
-  venue = Venue.query(venue_id)
-  db.session.delete(venue)
-  db.session.commit()
+  error = False
+  try:
+    venue = Venue.query.get(venue_id)
+    if venue:
+      db.session.delete(venue)
+      db.session.commit()
+    else:
+      error = True
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    flash('An error has occurred. Venue could not be deleted.')
+  else:
+    flash('Venue was successfully deleted.')
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
   return render_template('pages/home.html')
@@ -272,6 +287,30 @@ def show_artist(artist_id):
   }
 
   return render_template('pages/show_artist.html', artist=data)
+
+@app.route('/artists/<artist_id>/remove', methods=['GET'])
+def delete_artist(artist_id):
+  # DONE: Complete this endpoint for taking a artist_id, and using
+  # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
+  error = False
+  try:
+    artist = Artist.query.get(artist_id)
+    if artist:
+      db.session.delete(artist)
+      db.session.commit()
+    else:
+      error = True
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    flash('An error has occurred. Artist could not be deleted.')
+  else:
+    flash('Artist was successfully deleted.')
+  return render_template('pages/home.html')
 
 #  Update
 #  ----------------------------------------------------------------
