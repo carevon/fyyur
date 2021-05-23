@@ -282,7 +282,6 @@ def edit_artist(artist_id):
   artist = Artist.query.get(artist_id)
   if artist:
     fix_json_array(artist, "genres")
-    print(artist.genres)
     form.name.data = artist.name
     form.city.data = artist.city
     form.state.data = artist.state
@@ -383,24 +382,25 @@ def create_artist_submission():
   # called upon submitting the new artist listing form
   # DONE: insert form data as a new Venue record in the db, instead
   # DONE: modify data to be the data object returned from db insertion
+  error = False
   try:
     name = request.form['name']
     city = request.form['city']
     state = request.form['state']
-    address = request.form['address']
     phone = request.form['phone']
     genres = request.form.getlist('genres')
     fb_link = request.form['facebook_link']
     img_link = request.form['image_link']
     website_link = request.form['website_link']
-    seeking_talent = True if 'seeking_talent' in request.form else False
+    seeking_venue = True if 'seeking_venue' in request.form else False
     seeking_description = request.form['seeking_description']
 
-    artist = Artist(name=name, city=city, state=state, address=address, phone=phone, 
+    artist = Artist(name=name, city=city, state=state, phone=phone, 
     genres=genres, facebook_link=fb_link, image_link=img_link, website=website_link, 
-    seeking_talent=seeking_talent, seeking_description=seeking_description, 
+    seeking_venue=seeking_venue, seeking_description=seeking_description, 
     created_at=datetime.now(timezone(timedelta(hours=-3))), 
     updated_at=datetime.now(timezone(timedelta(hours=-3))))
+
     db.session.add(artist)
     db.session.commit()
   except:
@@ -452,12 +452,14 @@ def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   # DONE: insert form data as a new Show record in the db, instead
   error = False
+  show_id = db.session.query(db.func.max(Show.id)).scalar()
   try:
+    id = show_id + 1
     venue_id = request.form['venue_id']
     artist_id = request.form['artist_id']
     start_time = request.form['start_time']
 
-    show = Show(venue_id=venue_id, artist_id=artist_id, start_time=start_time, 
+    show = Show(id=id, venue_id=venue_id, artist_id=artist_id, start_time=start_time, 
     created_at=datetime.now(timezone(timedelta(hours=-3))), 
     updated_at=datetime.now(timezone(timedelta(hours=-3))))
     db.session.add(show)
