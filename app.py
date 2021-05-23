@@ -501,6 +501,7 @@ def create_show_submission():
     show = Show(id=id, venue_id=venue_id, artist_id=artist_id, start_time=start_time, 
     created_at=datetime.now(timezone(timedelta(hours=-3))), 
     updated_at=datetime.now(timezone(timedelta(hours=-3))))
+    
     db.session.add(show)
     db.session.commit()
   except:
