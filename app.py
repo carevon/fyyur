@@ -12,6 +12,7 @@ import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from flask_moment import Moment
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 import logging
 from logging import Formatter, FileHandler
 from wtforms import Form
@@ -24,6 +25,8 @@ from forms import *
 app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
+csrf = CSRFProtect(app)
+csrf.init_app(app)
 db.init_app(app)
 migrate = Migrate(app, db)
 
@@ -154,26 +157,34 @@ def create_venue_submission():
   # DONE: insert form data as a new Venue record in the db, instead
   # DONE: modify data to be the data object returned from db insertion
   error = False
+  form = VenueForm()
   try:
-    name = request.form['name']
-    city = request.form['city']
-    state = request.form['state']
-    address = request.form['address']
-    phone = request.form['phone']
-    genres = request.form.getlist('genres')
-    fb_link = request.form['facebook_link']
-    img_link = request.form['image_link']
-    website_link = request.form['website_link']
-    seeking_talent = True if 'seeking_talent' in request.form else False
-    seeking_description = request.form['seeking_description']
+    if form.validate_on_submit():
+      name = request.form['name']
+      city = request.form['city']
+      state = request.form['state']
+      address = request.form['address']
+      phone = request.form['phone']
+      genres = request.form.getlist('genres')
+      fb_link = request.form['facebook_link']
+      img_link = request.form['image_link']
+      website_link = request.form['website_link']
+      seeking_talent = True if 'seeking_talent' in request.form else False
+      seeking_description = request.form['seeking_description']
 
-    venue = Venue(name=name, city=city, state=state, address=address, phone=phone, 
-    genres=genres, facebook_link=fb_link, image_link=img_link, website=website_link, 
-    seeking_talent=seeking_talent, seeking_description=seeking_description, 
-    created_at=datetime.now(timezone(timedelta(hours=-3))), 
-    updated_at=datetime.now(timezone(timedelta(hours=-3))))
-    db.session.add(venue)
-    db.session.commit()
+      venue = Venue(name=name, city=city, state=state, address=address, phone=phone, 
+      genres=genres, facebook_link=fb_link, image_link=img_link, website=website_link, 
+      seeking_talent=seeking_talent, seeking_description=seeking_description, 
+      created_at=datetime.now(timezone(timedelta(hours=-3))), 
+      updated_at=datetime.now(timezone(timedelta(hours=-3))))
+      db.session.add(venue)
+      db.session.commit()
+    else:
+      print(form.errors)
+      for e in form.errors:
+        flash('An error has occurred. {}'.format(e))
+      db.session.rollback()
+      return render_template('pages/home.html')
   except:
     error = True
     db.session.rollback()

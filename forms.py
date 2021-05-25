@@ -1,12 +1,8 @@
 from datetime import datetime
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, csrf
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
-from wtforms.validators import DataRequired, AnyOf, Length, URL, ValidationError
-import re
+from wtforms.validators import DataRequired, AnyOf, Length, Regexp, URL
 
-def phone_validation(form, field):
-    if not re.search(r"^[0-9]$", field.data):
-        raise ValidationError("Invalid Input.")
 
 class ShowForm(FlaskForm):
     artist_id = StringField(
@@ -88,7 +84,11 @@ class VenueForm(FlaskForm):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone', validators=[DataRequired(), phone_validation]
+        'phone', 
+        validators=[
+            DataRequired(),
+            Regexp(r"\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})", message='Invalid phone input.')
+        ]
     )
     image_link = StringField(
         'image_link'
@@ -119,7 +119,12 @@ class VenueForm(FlaskForm):
         ]
     )
     facebook_link = StringField(
-        'facebook_link', validators=[URL(), Length(max=300)]
+        'facebook_link', 
+        validators=[
+            URL(),
+            Regexp(r"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?", message='Invalid facebook link.'), 
+            Length(max=300)
+        ]
     )
     website_link = StringField(
         'website_link', validators=[URL(), Length(max=120)]
@@ -130,7 +135,6 @@ class VenueForm(FlaskForm):
     seeking_description = StringField(
         'seeking_description', validators=[Length(max=120)]
     )
-
 
 
 class ArtistForm(FlaskForm):
@@ -198,7 +202,7 @@ class ArtistForm(FlaskForm):
     )
     phone = StringField(
         # TODO implement validation logic for state
-        'phone', validators=[phone_validation]
+        'phone', validators=[DataRequired(), Regexp(r"\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})", message='Invalid phone input.')]
     )
     image_link = StringField(
         'image_link', validators=[URL()]
@@ -228,8 +232,10 @@ class ArtistForm(FlaskForm):
         ]
      )
     facebook_link = StringField(
-        # TODO implement enum restriction
-        'facebook_link', validators=[URL(), Length(max=300)]
+        'facebook_link', validators=[
+            URL(), 
+            Regexp(r"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?", message='Invalid facebook link.'), 
+            Length(max=300)]
      )
 
     website_link = StringField(
