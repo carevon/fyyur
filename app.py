@@ -180,9 +180,8 @@ def create_venue_submission():
       db.session.add(venue)
       db.session.commit()
     else:
-      print(form.errors)
       for e in form.errors:
-        flash('An error has occurred. {}'.format(e))
+        flash('An error has occurred. {}'.format(form.errors[e]))
       db.session.rollback()
       return render_template('pages/home.html')
   except:
@@ -349,20 +348,27 @@ def edit_artist_submission(artist_id):
   # DONE: take values from the form submitted, and update existing
   # artist record with ID <artist_id> using the new attributes
   error = False
+  form = ArtistForm()
   try: 
-    artist = Artist.query.get(artist_id)
-    artist.name = request.form['name']
-    artist.city = request.form['city']
-    artist.state = request.form['state']
-    artist.phone = request.form['phone']
-    artist.genres = request.form.getlist('genres')
-    artist.facebook_link = request.form['facebook_link']
-    artist.image_link = request.form['image_link']
-    artist.website = request.form['website_link']
-    artist.seeking_venue = True if 'seeking_venue' in request.form else False
-    artist.seeking_description = request.form['seeking_description']
-    artist.updated_at = datetime.now(timezone(timedelta(hours=-3)))
-    db.session.commit()
+    if form.validate_on_submit():
+      artist = Artist.query.get(artist_id)
+      artist.name = request.form['name']
+      artist.city = request.form['city']
+      artist.state = request.form['state']
+      artist.phone = request.form['phone']
+      artist.genres = request.form.getlist('genres')
+      artist.facebook_link = request.form['facebook_link']
+      artist.image_link = request.form['image_link']
+      artist.website = request.form['website_link']
+      artist.seeking_venue = True if 'seeking_venue' in request.form else False
+      artist.seeking_description = request.form['seeking_description']
+      artist.updated_at = datetime.now(timezone(timedelta(hours=-3)))
+      db.session.commit()
+    else:
+      for e in form.errors:
+        flash('An error has occurred. {}'.format(form.errors[e]))
+      db.session.rollback()
+      return render_template('pages/edit_artist.html')
   except:
     error = True
     db.session.rollback()
@@ -375,20 +381,26 @@ def edit_artist_submission(artist_id):
 def edit_venue(venue_id):
   # DONE: populate form with values from venue with ID <venue_id>
   form = VenueForm()
-  venue = Venue.query.get(venue_id)
-  if venue:
-    fix_json_array(venue, "genres")
-    form.name.data = venue.name
-    form.city.data = venue.city
-    form.state.data = venue.state
-    form.address.data = venue.address
-    form.phone.data = venue.phone
-    form.genres.data = venue.genres
-    form.facebook_link.data = venue.facebook_link
-    form.image_link.data = venue.image_link
-    form.website_link.data = venue.website
-    form.seeking_talent.data = venue.seeking_talent
-    form.seeking_description.data = venue.seeking_description
+  if form.validate_on_submit():
+    venue = Venue.query.get(venue_id)
+    if venue:
+      fix_json_array(venue, "genres")
+      form.name.data = venue.name
+      form.city.data = venue.city
+      form.state.data = venue.state
+      form.address.data = venue.address
+      form.phone.data = venue.phone
+      form.genres.data = venue.genres
+      form.facebook_link.data = venue.facebook_link
+      form.image_link.data = venue.image_link
+      form.website_link.data = venue.website
+      form.seeking_talent.data = venue.seeking_talent
+      form.seeking_description.data = venue.seeking_description
+  else:
+    for e in form.errors:
+        flash('An error has occurred. {}'.format(form.errors[e]))
+    db.session.rollback()
+    return render_template('pages/edit_venue.html')
   return render_template('forms/edit_venue.html', form=form, venue=venue)
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
@@ -396,21 +408,28 @@ def edit_venue_submission(venue_id):
   # DONE: take values from the form submitted, and update existing
   # venue record with ID <venue_id> using the new attributes
   error = False
+  form = VenueForm()
   try:
-    venue = Venue.query.get(venue_id)
-    venue.name = request.form['name']
-    venue.city = request.form['city']
-    venue.state = request.form['state']
-    venue.address = request.form['address']
-    venue.phone = request.form['phone']
-    venue.genres = request.form.getlist('genres')
-    venue.fb_link = request.form['facebook_link']
-    venue.img_link = request.form['image_link']
-    venue.website_link = request.form['website_link']
-    venue.seeking_talent = True if 'seeking_talent' in request.form else False
-    venue.seeking_description = request.form['seeking_description']
-    venue.updated_at = datetime.now(timezone(timedelta(hours=-3)))
-    db.session.commit()
+    if form.validate_on_submit():
+      venue = Venue.query.get(venue_id)
+      venue.name = request.form['name']
+      venue.city = request.form['city']
+      venue.state = request.form['state']
+      venue.address = request.form['address']
+      venue.phone = request.form['phone']
+      venue.genres = request.form.getlist('genres')
+      venue.fb_link = request.form['facebook_link']
+      venue.img_link = request.form['image_link']
+      venue.website_link = request.form['website_link']
+      venue.seeking_talent = True if 'seeking_talent' in request.form else False
+      venue.seeking_description = request.form['seeking_description']
+      venue.updated_at = datetime.now(timezone(timedelta(hours=-3)))
+      db.session.commit()
+    else:
+      for e in form.errors:
+          flash('An error has occurred. {}'.format(form.errors[e]))
+      db.session.rollback()
+      return render_template('pages/edit_venue.html')
   except:
     error = True
     db.session.rollback()
@@ -433,26 +452,33 @@ def create_artist_submission():
   # DONE: insert form data as a new Venue record in the db, instead
   # DONE: modify data to be the data object returned from db insertion
   error = False
+  form = ArtistForm()
   try:
-    name = request.form['name']
-    city = request.form['city']
-    state = request.form['state']
-    phone = request.form['phone']
-    genres = request.form.getlist('genres')
-    fb_link = request.form['facebook_link']
-    img_link = request.form['image_link']
-    website_link = request.form['website_link']
-    seeking_venue = True if 'seeking_venue' in request.form else False
-    seeking_description = request.form['seeking_description']
+    if form.validate_on_submit():
+      name = request.form['name']
+      city = request.form['city']
+      state = request.form['state']
+      phone = request.form['phone']
+      genres = request.form.getlist('genres')
+      fb_link = request.form['facebook_link']
+      img_link = request.form['image_link']
+      website_link = request.form['website_link']
+      seeking_venue = True if 'seeking_venue' in request.form else False
+      seeking_description = request.form['seeking_description']
 
-    artist = Artist(name=name, city=city, state=state, phone=phone, 
-    genres=genres, facebook_link=fb_link, image_link=img_link, website=website_link, 
-    seeking_venue=seeking_venue, seeking_description=seeking_description, 
-    created_at=datetime.now(timezone(timedelta(hours=-3))), 
-    updated_at=datetime.now(timezone(timedelta(hours=-3))))
+      artist = Artist(name=name, city=city, state=state, phone=phone, 
+      genres=genres, facebook_link=fb_link, image_link=img_link, website=website_link, 
+      seeking_venue=seeking_venue, seeking_description=seeking_description, 
+      created_at=datetime.now(timezone(timedelta(hours=-3))), 
+      updated_at=datetime.now(timezone(timedelta(hours=-3))))
 
-    db.session.add(artist)
-    db.session.commit()
+      db.session.add(artist)
+      db.session.commit()
+    else:
+      for e in form.errors:
+          flash('An error has occurred. {}'.format(form.errors[e]))
+      db.session.rollback()
+      return render_template('pages/artists.html')
   except:
     error = True
     db.session.rollback()
@@ -502,19 +528,26 @@ def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   # DONE: insert form data as a new Show record in the db, instead
   error = False
+  form = ShowForm()
   show_id = db.session.query(db.func.max(Show.id)).scalar()
   try:
-    id = show_id + 1
-    venue_id = request.form['venue_id']
-    artist_id = request.form['artist_id']
-    start_time = request.form['start_time']
+    if form.validate_on_submit():
+      id = show_id + 1
+      venue_id = request.form['venue_id']
+      artist_id = request.form['artist_id']
+      start_time = request.form['start_time']
 
-    show = Show(id=id, venue_id=venue_id, artist_id=artist_id, start_time=start_time, 
-    created_at=datetime.now(timezone(timedelta(hours=-3))), 
-    updated_at=datetime.now(timezone(timedelta(hours=-3))))
-    
-    db.session.add(show)
-    db.session.commit()
+      show = Show(id=id, venue_id=venue_id, artist_id=artist_id, start_time=start_time, 
+      created_at=datetime.now(timezone(timedelta(hours=-3))), 
+      updated_at=datetime.now(timezone(timedelta(hours=-3))))
+      
+      db.session.add(show)
+      db.session.commit()
+    else:
+      for e in form.errors:
+          flash('An error has occurred. {}'.format(form.errors[e]))
+      db.session.rollback()
+      return render_template('pages/shows.html')
   except:
     error = True
     db.session.rollback()
